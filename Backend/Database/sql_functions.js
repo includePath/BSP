@@ -31,7 +31,8 @@ module.exports.createDatabase = async function() {
 
     await setup.query(`
         CREATE TABLE IF NOT EXISTS Locations (
-            name VARCHAR(100) PRIMARY KEY
+            location_id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100)
         );
     `); 
 
@@ -39,13 +40,13 @@ module.exports.createDatabase = async function() {
         CREATE TABLE IF NOT EXISTS Requests (
             request_id INT AUTO_INCREMENT PRIMARY KEY,
             passenger_id VARCHAR(50),
-            start_loc VARCHAR(100),
-            end_loc VARCHAR(100),
+            start_loc INT,
+            end_loc INT,
             ride_time TIME,
             needs BOOLEAN,
             FOREIGN KEY (passenger_id) REFERENCES Passengers(passenger_id) ON DELETE CASCADE,
-            FOREIGN KEY (start_loc) REFERENCES Locations(name),
-            FOREIGN KEY (end_loc) REFERENCES Locations(name)
+            FOREIGN KEY (start_loc) REFERENCES Locations(location_id),
+            FOREIGN KEY (end_loc) REFERENCES Locations(location_id)
         );
     `);
 
@@ -54,13 +55,13 @@ module.exports.createDatabase = async function() {
             ride_id INT AUTO_INCREMENT PRIMARY KEY,
             driver_id VARCHAR(50) NOT NULL,
             seats INT, 
-            start_loc VARCHAR(100),
-            end_loc VARCHAR(100),
+            start_loc INT,
+            end_loc INT,
             ride_time TIME,
             needs BOOLEAN,
             FOREIGN KEY (driver_id) REFERENCES Drivers(driver_id) ON DELETE CASCADE,
-            FOREIGN KEY (start_loc) REFERENCES Locations(name),
-            FOREIGN KEY (end_loc) REFERENCES Locations(name)
+            FOREIGN KEY (start_loc) REFERENCES Locations(location_id),
+            FOREIGN KEY (end_loc) REFERENCES Locations(location_id)
         );
     `);
     await setup.query(`
@@ -201,13 +202,15 @@ module.exports.runAlgorithm = async function() {
     return { success: true };
 }
 
-//select all locations
-module.exports.getLocations = async function() {
-    const [rows] = await pool.query(`
-        SELECT name FROM Locations
-        ORDER BY name
-    `);
-    return rows.map(row => row.name);
+// -- POPULATE FUNCTIONS -- //
+
+//create an user (populate_database.js)
+module.exports.createUser = async function(user_id, pass) {
+    await pool.query(`
+        INSERT INTO Users (user_id, pass)
+        VALUES(?,?)
+        `, [user_id, pass]
+    )
 }
 
 //create a new location
@@ -226,13 +229,13 @@ module.exports.createLocation = async function(name) {
     }
 }
 
-// -- POPULATE FUNCTIONS -- //
-
-//create an user (populate_database.js)
-module.exports.createUser = async function(user_id, pass) {
-    await pool.query(`
-        INSERT INTO Users (user_id, pass)
-        VALUES(?,?)
-        `, [user_id, pass]
-    )
+//get the id of the location
+module.exports.getLocationID = async function(name) {
+    const [rows] = await pool.query(`
+        SELECT location_id FROM Locations WHERE name = (?)
+    `, [name]);
+    if (rows.length === 0) {
+        throw new Error(`Location ${name} not found`);
+    }
+    return rows[0].location_id;
 }

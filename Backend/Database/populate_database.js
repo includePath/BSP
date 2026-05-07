@@ -7,7 +7,8 @@ const {
     createPassenger, 
     createRide,
     createRequest,
-    createLocation
+    createLocation,
+    getLocationID
 } = require("./sql_functions.js");
 const { pool, setup } = require("./sql_pools.js");
 
@@ -87,6 +88,11 @@ async function populateDatabase(numUsers = 100, numLocations = 5){
         //60% driver and 40% passenger
         const isDriver = i <= numUsers / 10 * 6;
 
+        //get the id of the locations
+        const start_loc_id = await getLocationID(randomLocation(selectedLocations));
+        const end_loc_id = await getLocationID(randomLocation(selectedLocations));
+        const uni_id = await getLocationID("University of Luxembourg");
+
         if(isDriver){
             //create driver
             const seats = Math.floor(Math.random() * 4) + 1;
@@ -97,8 +103,8 @@ async function populateDatabase(numUsers = 100, numLocations = 5){
 
             for(let j = 1; j <= numRides; j++){
                 const direction = randomBoolean();
-                const start_loc = direction ? randomLocation(selectedLocations) : "University of Luxembourg";
-                const end_loc = direction ? "University of Luxembourg" : randomLocation(selectedLocations);
+                const start_loc = direction ? start_loc_id : uni_id;
+                const end_loc = direction ? uni_id : end_loc_id;
                 const ride_time = randomTime();
                 const needs = randomBoolean(); 
                 await createRide(user_id, seats, start_loc, end_loc, ride_time, needs);
@@ -112,8 +118,8 @@ async function populateDatabase(numUsers = 100, numLocations = 5){
             const numRequests = Math.floor(Math.random() * 3) + 1;
             for(let j = 1; j <= numRequests; j++){
                 const direction = randomBoolean();
-                const start_loc = direction ? randomLocation(selectedLocations) : "University of Luxembourg";
-                const end_loc = direction ? "University of Luxembourg" : randomLocation(selectedLocations);
+                const start_loc = direction ? start_loc_id : uni_id;
+                const end_loc = direction ? uni_id : end_loc_id;
                 const ride_time = randomTime();
                 const needs = randomBoolean();
                 await createRequest(user_id, start_loc, end_loc, ride_time, needs);
