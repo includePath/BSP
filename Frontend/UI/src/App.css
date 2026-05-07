@@ -1,0 +1,56 @@
+body {
+  background-color: lavender;
+}
+
+h1 {
+  text-align: center;
+  padding: 40px;
+}
+
+h2 {
+  text-align: center;
+  padding: 20px;
+}
+
+.center-container {
+  text-align: center;
+  padding: 20px;
+}
+
+ul {
+  display: inline-block; 
+  text-align: left;
+} 
+
+form {
+  text-align: center;
+}
+
+input {
+  margin: 10px
+}
+
+input[type = "submit"] {
+  width: 100px;
+}
+
+
+.leaflet-container {
+  margin: auto;
+  height: 50vh;
+  width: 40%;
+}
+.loading-spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
