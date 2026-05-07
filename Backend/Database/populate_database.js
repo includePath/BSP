@@ -6,7 +6,8 @@ const {
     createDriver, 
     createPassenger, 
     createRide,
-    createRequest
+    createRequest,
+    createLocation
 } = require("./sql_functions.js");
 const { pool, setup } = require("./sql_pools.js");
 
@@ -69,6 +70,13 @@ async function populateDatabase(numUsers = 100, numLocations = 5){
 
     //only take the first numLocations locations
     const selectedLocations = locations.slice(0, numLocations);
+
+    //populate locations table
+    for (const loc of selectedLocations) {
+        await createLocation(loc);
+    }
+    //also add University of Luxembourg as a location
+    await createLocation("University of Luxembourg");
 
     //create users
     for(let i = 1; i <= numUsers; i++){

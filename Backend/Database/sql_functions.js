@@ -30,20 +30,22 @@ module.exports.createDatabase = async function() {
     `);
 
     await setup.query(`
-        CREATE TABLE IF NOT EXIST Locations (
-            location VARCHAR(100) PRIMARY KEY,
+        CREATE TABLE IF NOT EXISTS Locations (
+            name VARCHAR(100) PRIMARY KEY
         );
     `); 
 
     await setup.query(`
-        CREATE Table IF NOT EXISTS Requests (
+        CREATE TABLE IF NOT EXISTS Requests (
             request_id INT AUTO_INCREMENT PRIMARY KEY,
             passenger_id VARCHAR(50),
             start_loc VARCHAR(100),
             end_loc VARCHAR(100),
             ride_time TIME,
             needs BOOLEAN,
-            FOREIGN KEY (passenger_id) REFERENCES Passengers(passenger_id) ON DELETE CASCADE
+            FOREIGN KEY (passenger_id) REFERENCES Passengers(passenger_id) ON DELETE CASCADE,
+            FOREIGN KEY (start_loc) REFERENCES Locations(name),
+            FOREIGN KEY (end_loc) REFERENCES Locations(name)
         );
     `);
 
@@ -56,7 +58,9 @@ module.exports.createDatabase = async function() {
             end_loc VARCHAR(100),
             ride_time TIME,
             needs BOOLEAN,
-            FOREIGN KEY (driver_id) REFERENCES Drivers(driver_id) ON DELETE CASCADE
+            FOREIGN KEY (driver_id) REFERENCES Drivers(driver_id) ON DELETE CASCADE,
+            FOREIGN KEY (start_loc) REFERENCES Locations(name),
+            FOREIGN KEY (end_loc) REFERENCES Locations(name)
         );
     `);
     await setup.query(`
@@ -200,15 +204,26 @@ module.exports.runAlgorithm = async function() {
 //select all locations
 module.exports.getLocations = async function() {
     const [rows] = await pool.query(`
-        SELECT DISTINCT start_loc FROM Rides
-        UNION
-        SELECT DISTINCT end_loc FROM Rides
-        UNION
-        SELECT DISTINCT start_loc FROM Requests
-        UNION
-        SELECT DISTINCT end_loc FROM Requests
+        SELECT name FROM Locations
+        ORDER BY name
     `);
-    return rows.map(row => row.start_loc || row.end_loc);
+    return rows.map(row => row.name);
+}
+
+//create a new location
+module.exports.createLocation = async function(name) {
+    //check if location already exists
+    const [check] = await pool.query(`
+        SELECT * FROM Locations WHERE name = (?)
+    `, [name]);
+
+    //only insert if it doesn't exist
+    if (check.length === 0) {
+        await pool.query(`
+            INSERT INTO Locations (name)
+            VALUES (?)
+        `, [name]);
+    }
 }
 
 // -- POPULATE FUNCTIONS -- //
