@@ -37,6 +37,16 @@ module.exports.createDatabase = async function() {
     `); 
 
     await setup.query(`
+        CREATE TABLE IF NOT EXISTS FavoriteLocations (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id VARCHAR(50),
+            location_id INT,
+            FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+            FOREIGN KEY (location_id) REFERENCES Locations(location_id) ON DELETE CASCADE
+        );
+    `);
+
+    await setup.query(`
         CREATE TABLE IF NOT EXISTS Requests (
             request_id INT AUTO_INCREMENT PRIMARY KEY,
             passenger_id VARCHAR(50),
@@ -200,6 +210,30 @@ module.exports.runAlgorithm = async function() {
     await commitAssignments(state);
 
     return { success: true };
+}
+
+//get all the locations (user page)
+module.exports.getLocations = async function() {
+    const [rows] = await pool.query(`
+        SELECT * FROM Locations
+    `);
+    return rows;
+}
+
+//create the favorite locations for a user (user page)
+module.exports.createFavoriteLocations = async function(user_id, location_ids) {
+    //delete old favorite locations for the user
+    await pool.query(`
+        DELETE FROM FavoriteLocations WHERE user_id = ?
+    `, [user_id]);
+
+    //insert new favorite locations for the user
+    for (const location_id of location_ids) {
+        await pool.query(`
+            INSERT INTO FavoriteLocations (user_id, location_id)
+            VALUES (?, ?)
+        `, [user_id, location_id]);
+    }
 }
 
 // -- POPULATE FUNCTIONS -- //

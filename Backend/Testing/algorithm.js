@@ -7,10 +7,10 @@ const { pool, setup } = require("../Database/sql_pools.js");
 //run the algorithm and print the result
 async function test() {
     await populateDatabase(5,1); 
-    //pick random request
-    const randomRequest = await pool.query("SELECT * FROM requests ORDER BY RAND() LIMIT 1");
-    console.log("Random request:", randomRequest[0]);
-    //run the algorithm with the random passenger
+    //get the test user's request
+    const testRequest = await pool.query("SELECT * FROM requests WHERE passenger_id = 'test' LIMIT 1");
+    console.log("Test user request:", testRequest[0]);
+    //run the algorithm with the test passenger
     const state = await simulatedAnnealing(pool);
     await commitAssignments(state);
     const result = await pool.query(`
@@ -18,10 +18,10 @@ async function test() {
         FROM PassengerRides
         JOIN Rides ON PassengerRides.ride_id = Rides.ride_id
         WHERE PassengerRides.passenger_id = ?
-    `, [randomRequest[0][0].passenger_id]);
+    `, ['test']);
 
-    //output the ride assigned to the random passenger
-    console.log("Ride assigned to random passenger:", result[0][0]);
+    //output the ride assigned to the test passenger
+    console.log("Ride assigned to test passenger:", result[0][0]);
 }
 
 if (require.main === module) {

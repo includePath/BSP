@@ -1,3 +1,5 @@
+const { getLocationName } = require("../Database/sql_functions_algorithm.js");
+
 async function generateInitialRoute (pool) {
 
     //load all drivers + their requests
@@ -27,8 +29,8 @@ async function generateInitialRoute (pool) {
             ride_id: ride.ride_id,
             driver_id: ride.driver_id,
             seats: ride.seats, 
-            start_loc: ride.start_loc,
-            end_loc: ride.end_loc,
+            start_loc: await getLocationName(ride.start_loc),
+            end_loc: await getLocationName(ride.end_loc),
             ride_time: ride.ride_time,
             needs: ride.needs,
             passengers: []
@@ -37,6 +39,10 @@ async function generateInitialRoute (pool) {
 
     //assign to each passenger a random ride with available seats
     for (const passenger of passengers) {
+        //convert passenger location IDs to names
+        passenger.start_loc = await getLocationName(passenger.start_loc);
+        passenger.end_loc = await getLocationName(passenger.end_loc);
+        
         //shuffle rides to ensure randomness
         const shuffledRides = Array.from(rideMap.values()).sort(() => Math.random() - 0.5);
         let assignedRide = null;

@@ -6,7 +6,8 @@ const {
         createRequest,
         showRide,
         runAlgorithm,
-        getLocations
+        getLocations,
+        createFavoriteLocations
 
 } = require("./sql_functions.js");
 
@@ -71,9 +72,15 @@ app.post("/runAlgorithm", async (req, res) => {
 });
 
 // -- USER PAGE --//
-app.post("/getLocations", async (req, res) => {
+app.get("/getLocations", async (req, res) => {
     const locations = await getLocations();
-    res.send(locations);
+    res.json(locations);
+});
+
+app.post("/createFavoriteLocations", async (req, res) => {
+    const { user_id, location_ids } = req.body;
+    await createFavoriteLocations(user_id, location_ids);
+    res.status(201).send({ success: true, message: "Favorite locations updated successfully" });    
 });
 
 // -- LOCATION VALIDATION FUNCTION -- //

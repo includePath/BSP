@@ -66,9 +66,6 @@ async function populateDatabase(numUsers = 100, numLocations = 5){
     //create the database
     await createDatabase();
 
-    //create a mock user for manual testing
-    await createUser("test", "test");
-
     //only take the first numLocations locations
     const selectedLocations = locations.slice(0, numLocations);
 
@@ -78,6 +75,13 @@ async function populateDatabase(numUsers = 100, numLocations = 5){
     }
     //also add University of Luxembourg as a location
     await createLocation("University of Luxembourg");
+
+    //create a mock user for manual testing
+    await createUser("test", "test");
+    await createPassenger("test");
+    const start_loc_id = await getLocationID(randomLocation(selectedLocations));
+    const end_loc_id = await getLocationID(randomLocation(selectedLocations));
+    await createRequest("test", start_loc_id, end_loc_id, randomTime(), randomBoolean());
 
     //create users
     for(let i = 1; i <= numUsers; i++){

@@ -1,5 +1,6 @@
 //used to make url requests
 const axios = require("axios")
+const { getFavoriteLocations } = require("../Database/sql_functions_algorithm.js");
 
 // --HELPER FUNCTIONS-- //
 
@@ -205,6 +206,9 @@ async function cost (S) {
 
     //loop through all passengers
     for (const passenger of S.passengers) {
+
+        // --SEATING AND NEEDS-- //
+
         //get the assigned ride ID
         const assignedRide = passenger.assignedRide;
         //the passenger is not assigned to a ride
@@ -225,18 +229,20 @@ async function cost (S) {
             cost += 100000; // arbitrary penalty
         }
 
-        //time penalty 
+        // --TIME--//
+
         const passengerTime = stringToTime(passenger.ride_time);
         const rideTime = stringToTime(ride.ride_time);
 
         cost += Math.floor(Math.abs(passengerTime - rideTime));
 
-        //distance penalty (using cached geocodes)
+        // --DISTANCE-- //
+
         const passengerStart = coorCache[normalizeLocation(passenger.start_loc)];
         const passengerEnd = coorCache[normalizeLocation(passenger.end_loc)];
         const driverStart = coorCache[normalizeLocation(ride.start_loc)];
         const driverEnd = coorCache[normalizeLocation(ride.end_loc)];
-        
+
         //check if all coordinates are valid    
         if (!passengerStart || !passengerEnd || !driverStart || !driverEnd) {
             cost += 100000;
@@ -259,7 +265,31 @@ async function cost (S) {
         const key3 = `${passengerEnd.lat.toFixed(5)},${passengerEnd.lon.toFixed(5)}-${driverEnd.lat.toFixed(5)},${driverEnd.lon.toFixed(5)}`;
         const dist3 = distCache[key3] ?? 1000;
         cost += (dist1 + dist2 + dist3)* 10; // weight the distance penalty (arbitrary factor)
-        
+
+
+        // --PREFERENCES-- //
+
+        //favorite location bonus
+        //load only once per passenger to save time
+        if (!passenger.favoriteNamesLoaded) {
+            const favs = await getFavoriteLocations(passenger.user_id);
+
+            passenger.favoriteNames = new Set(
+                favs.map(f => normalizeLocation(f.name))
+            );
+
+            passenger.favoriteNamesLoaded = true;
+        }
+
+        const favs = passenger.favoriteNames;
+
+        const rideStart = normalizeLocation(ride.start_loc);
+        const rideEnd   = normalizeLocation(ride.end_loc);
+
+        if (favs.has(rideStart) || favs.has(rideEnd)) {
+            cost = Math.max(0, cost - 500);
+        }
+
     } 
 
     return cost;

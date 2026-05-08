@@ -47,3 +47,25 @@ module.exports.deleteFullRides = async function(){
         WHERE seats <= 0
     `);
 }
+
+//get the user's favorite locations name 
+module.exports.getFavoriteLocations = async function(user_id) {
+    const [rows] = await pool.query(`
+        SELECT l.location_id, l.name
+        FROM FavoriteLocations fl
+        JOIN Locations l ON fl.location_id = l.location_id
+        WHERE fl.user_id = ?
+    `, [user_id]);
+    return rows;
+}
+
+//get the name of a location by its id
+module.exports.getLocationName = async function(location_id) {
+    const [rows] = await pool.query(`
+        SELECT name FROM Locations WHERE location_id = ?
+    `, [location_id]);
+    if (rows.length === 0) {
+        throw new Error(`Location with id ${location_id} not found`);
+    }
+    return rows[0].name;
+}

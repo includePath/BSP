@@ -12,7 +12,7 @@ export function Rides() {
   //loaidng the rides
   const [loading, setLoading] = useState(true);
 
-  //get the value of need
+  //get the user id
   const location = useLocation();
   const { ID } = location.state || {};
 
