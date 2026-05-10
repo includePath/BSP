@@ -50,17 +50,6 @@ export function User() {
     }
 
     //locations
-    const handleToggleLocation = (location_id) => {
-        if (favoriteLocations.some(loc => loc.location_id === location_id)) {
-            setFavoriteLocations(favoriteLocations.filter(loc => loc.location_id !== location_id));
-        } else {
-            const loc = locations.find(loc => loc.location_id === location_id);
-            if (loc) {
-                setFavoriteLocations([...favoriteLocations, loc]);
-            }
-        }
-    };
-
     const handleSubmitFavorites = async () => {
         const location_ids = favoriteLocations.map(loc => loc.location_id);
         try {
@@ -73,17 +62,6 @@ export function User() {
     };
 
     //users
-    const handleToggleAvoidUser = (avoid_user_id) => {
-        if (avoidUsers.some(user => user.user_id === avoid_user_id)) {
-            setAvoidUsers(avoidUsers.filter(user => user.user_id !== avoid_user_id));
-        } else {
-            const user = users.find(user => user.user_id === avoid_user_id);
-            if (user) {
-                setAvoidUsers([...avoidUsers, user]);
-            }
-        }
-    };
-
     const handleSubmitAvoidUsers = async () => {
         const avoid_user_ids = avoidUsers.map(user => user.user_id);
         try {
@@ -110,20 +88,21 @@ export function User() {
             {/* Left side with favorite rides */}
             <div className="left-side">
                 <h2>Favorite Locations</h2>
-                <ul>
+                <select 
+                    multiple 
+                    value={favoriteLocations.map(loc => loc.location_id)}
+                    onChange={(e) => {
+                        const selectedIds = Array.from(e.target.selectedOptions, option => option.value);
+                        const selectedLocations = locations.filter(loc => selectedIds.includes(loc.location_id));
+                        setFavoriteLocations(selectedLocations);
+                    }}
+                >
                     {locations.map(loc => (
-                        <li key={loc.location_id}>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={favoriteLocations.some(fav => fav.location_id === loc.location_id)}
-                                    onChange={() => handleToggleLocation(loc.location_id)}
-                                />
-                                {loc.name}
-                            </label>
-                        </li>
+                        <option key={loc.location_id} value={loc.location_id}>
+                            {loc.name}
+                        </option>
                     ))}
-                </ul>
+                </select>
                 <button onClick={handleSubmitFavorites}>Submit Favorite Locations</button>
             </div>
 
@@ -140,20 +119,21 @@ export function User() {
             {/* User preferences */}
             <div className="user-preferences">
                 <h2>Blocked users</h2>
-                <ul>
+                <select 
+                    multiple 
+                    value={avoidUsers.map(user => user.user_id)}
+                    onChange={(e) => {
+                        const selectedIds = Array.from(e.target.selectedOptions, option => option.value);
+                        const selectedUsers = users.filter(user => selectedIds.includes(user.user_id));
+                        setAvoidUsers(selectedUsers);
+                    }}
+                >
                     {users.map(user => (
-                        <li key={user.user_id}>
-                            <label>
-                                <input
-                                    type="checkbox"
-                                    checked={avoidUsers.some(avoid => avoid.user_id === user.user_id)}
-                                    onChange={() => handleToggleAvoidUser(user.user_id)}
-                                />
-                                {user.user_id}
-                            </label>
-                        </li>
+                        <option key={user.user_id} value={user.user_id}>
+                            {user.user_id}
+                        </option>
                     ))}
-                </ul>
+                </select>
                 <button onClick={handleSubmitAvoidUsers}>Submit Avoided Users</button>
             </div>
 
