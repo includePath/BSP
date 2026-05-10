@@ -1,6 +1,6 @@
 //used to make url requests
 const axios = require("axios")
-const { getFavoriteLocations } = require("../Database/sql_functions_algorithm.js");
+const { getFavoriteLocations, getAvoidUsers } = require("../Database/sql_functions_algorithm.js");
 
 // --HELPER FUNCTIONS-- //
 
@@ -288,6 +288,17 @@ async function cost (S) {
 
         if (favs.has(rideStart) || favs.has(rideEnd)) {
             cost = Math.max(0, cost - 500);
+        }
+
+        //avoid user penalty
+        //load only once per passenger to save time
+        if (!passenger.avoidUsersLoaded) {
+            passenger.avoidUserIDs = new Set(await getAvoidUsers(passenger.user_id));
+            passenger.avoidUsersLoaded = true;
+        }
+
+        if (passenger.avoidUserIDs.has(ride.driver_id)) {
+            cost += 100000; // arbitrary penalty
         }
 
     } 

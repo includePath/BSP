@@ -18,8 +18,11 @@ module.exports.createDatabase = async function() {
     `); 
     await setup.query(`
         CREATE TABLE IF NOT EXISTS AvoidUsers (
-            user_id VARCHAR(50) PRIMARY KEY,
-            FOREIGN KEY (user_id) REFERENCES Users(user_id)
+            main_user_id VARCHAR(50),
+            avoid_user_id VARCHAR(50),
+            PRIMARY KEY (main_user_id, avoid_user_id),
+            FOREIGN KEY (main_user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+            FOREIGN KEY (avoid_user_id) REFERENCES Users(user_id) ON DELETE CASCADE
         );
     `);
     await setup.query(`
@@ -44,9 +47,9 @@ module.exports.createDatabase = async function() {
 
     await setup.query(`
         CREATE TABLE IF NOT EXISTS FavoriteLocations (
-            id INT AUTO_INCREMENT PRIMARY KEY,
             user_id VARCHAR(50),
             location_id INT,
+            PRIMARY KEY (user_id, location_id),
             FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
             FOREIGN KEY (location_id) REFERENCES Locations(location_id) ON DELETE CASCADE
         );
@@ -228,15 +231,10 @@ module.exports.getLocations = async function() {
 
 //create the favorite locations for a user (user page)
 module.exports.createFavoriteLocations = async function(user_id, location_ids) {
-    //delete old favorite locations for the user
-    await pool.query(`
-        DELETE FROM FavoriteLocations WHERE user_id = ?
-    `, [user_id]);
-
     //insert new favorite locations for the user
     for (const location_id of location_ids) {
         await pool.query(`
-            INSERT INTO FavoriteLocations (user_id, location_id)
+            INSERT IGNORE INTO FavoriteLocations (user_id, location_id)
             VALUES (?, ?)
         `, [user_id, location_id]);
     }
@@ -251,19 +249,39 @@ module.exports.getUsers = async function() {
 }
 
 //create the avoided users for a user (user page)
-module.exports.createAvoidUsers = async function(user_id, avoid_user_ids) {
-    //delete old avoided users for the user
-    await pool.query(`
-        DELETE FROM AvoidUsers WHERE user_id = ?
-    `, [user_id]);
-
+module.exports.createAvoidUsers = async function(main_user_id, avoid_user_ids) {
     //insert new avoided users for the user
     for (const avoid_user_id of avoid_user_ids) {
         await pool.query(`
-            INSERT INTO AvoidUsers (user_id)
-            VALUES (?)
-        `, [avoid_user_id]);
+            INSERT IGNORE INTO AvoidUsers (main_user_id, avoid_user_id)
+            VALUES (?, ?)
+        `, [main_user_id, avoid_user_id]);
     }
+}
+
+//get all the rides that a passenger has been assigned to and convert location ids to names (user page)
+module.exports.getPassengerRides = async function(passenger_id) {
+    const [rows] = await pool.query(`
+        SELECT Rides.*, start_loc.name as start_loc_name, end_loc.name as end_loc_name
+        FROM PassengerRides
+        JOIN Rides ON PassengerRides.ride_id = Rides.ride_id
+        JOIN Locations as start_loc ON Rides.start_loc = start_loc.location_id
+        JOIN Locations as end_loc ON Rides.end_loc = end_loc.location_id
+        WHERE PassengerRides.passenger_id = ?
+    `, [passenger_id]);
+    return rows;
+}
+
+//get all the rides that a driver is providing and convert location ids to names (user page)
+module.exports.getDriverRides = async function(driver_id) {
+    const [rows] = await pool.query(`
+        SELECT Rides.*, start_loc.name as start_loc_name, end_loc.name as end_loc_name
+        FROM Rides
+        JOIN Locations as start_loc ON Rides.start_loc = start_loc.location_id
+        JOIN Locations as end_loc ON Rides.end_loc = end_loc.location_id
+        WHERE driver_id = ?
+    `, [driver_id]);
+    return rows;
 }
 
 // -- POPULATE FUNCTIONS -- //

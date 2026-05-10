@@ -6,7 +6,7 @@ const { pool, setup } = require("../Database/sql_pools.js");
 
 //run the algorithm and print the result
 async function test() {
-    await populateDatabase(5,1); 
+    //await populateDatabase(5,1); 
     //get the test user's request
     const testRequest = await pool.query("SELECT * FROM requests WHERE passenger_id = 'test' LIMIT 1");
     console.log("Test user request:", testRequest[0]);

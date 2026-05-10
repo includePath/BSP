@@ -69,3 +69,13 @@ module.exports.getLocationName = async function(location_id) {
     }
     return rows[0].name;
 }
+
+//get all the users that a user wants to avoid
+module.exports.getAvoidUsers = async function(user_id) {
+    const [rows] = await pool.query(`
+        SELECT avoid_user_id
+        FROM AvoidUsers
+        WHERE main_user_id = ?
+    `, [user_id]);
+    return rows.map(row => row.avoid_user_id);
+}

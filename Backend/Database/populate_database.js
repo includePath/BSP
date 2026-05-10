@@ -79,9 +79,11 @@ async function populateDatabase(numUsers = 100, numLocations = 5){
     //create a mock user for manual testing
     await createUser("test", "test");
     await createPassenger("test");
+    await createDriver("test");
     const start_loc_id = await getLocationID(randomLocation(selectedLocations));
     const end_loc_id = await getLocationID(randomLocation(selectedLocations));
     await createRequest("test", start_loc_id, end_loc_id, randomTime(), randomBoolean());
+    await createRide("test", 3, start_loc_id, end_loc_id, randomTime(), randomBoolean());
 
     //create users
     for(let i = 1; i <= numUsers; i++){
