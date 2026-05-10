@@ -17,6 +17,12 @@ module.exports.createDatabase = async function() {
         );
     `); 
     await setup.query(`
+        CREATE TABLE IF NOT EXISTS AvoidUsers (
+            user_id VARCHAR(50) PRIMARY KEY,
+            FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        );
+    `);
+    await setup.query(`
         CREATE TABLE IF NOT EXISTS Drivers (
             driver_id VARCHAR(50) PRIMARY KEY,
             FOREIGN KEY (driver_id) REFERENCES Users(user_id)
@@ -233,6 +239,30 @@ module.exports.createFavoriteLocations = async function(user_id, location_ids) {
             INSERT INTO FavoriteLocations (user_id, location_id)
             VALUES (?, ?)
         `, [user_id, location_id]);
+    }
+}
+
+//get all the users
+module.exports.getUsers = async function() {
+    const [rows] = await pool.query(`
+        SELECT * FROM Users
+    `);
+    return rows;
+}
+
+//create the avoided users for a user (user page)
+module.exports.createAvoidUsers = async function(user_id, avoid_user_ids) {
+    //delete old avoided users for the user
+    await pool.query(`
+        DELETE FROM AvoidUsers WHERE user_id = ?
+    `, [user_id]);
+
+    //insert new avoided users for the user
+    for (const avoid_user_id of avoid_user_ids) {
+        await pool.query(`
+            INSERT INTO AvoidUsers (user_id)
+            VALUES (?)
+        `, [avoid_user_id]);
     }
 }
 

@@ -17,6 +17,9 @@ export function User() {
     const [locations, setLocations] = React.useState([]);
     const [favoriteLocations, setFavoriteLocations] = React.useState([]);
 
+    const [users, setUsers] = React.useState([]);
+    const [avoidUsers, setAvoidUsers] = React.useState([]);
+
     useEffect(() => {
         //not logged in
         if (!ID) return;
@@ -27,6 +30,13 @@ export function User() {
             setLocations(response.data || []);
         };
         getLocations();
+
+        //get the users
+        const getUsers = async () => {
+            const response = await axios.get("http://localhost:8080/getUsers");
+            setUsers(response.data || []);
+        };
+        getUsers();
     }, [ID]);
         
 
@@ -39,7 +49,8 @@ export function User() {
         );
     }
 
-    const handleToggle = (location_id) => {
+    //locations
+    const handleToggleLocation = (location_id) => {
         if (favoriteLocations.some(loc => loc.location_id === location_id)) {
             setFavoriteLocations(favoriteLocations.filter(loc => loc.location_id !== location_id));
         } else {
@@ -48,10 +59,6 @@ export function User() {
                 setFavoriteLocations([...favoriteLocations, loc]);
             }
         }
-    };
-
-    const handleSubmit = () => {
-        navigate(`/${role}`, { state: { ID } });
     };
 
     const handleSubmitFavorites = async () => {
@@ -63,6 +70,33 @@ export function User() {
             console.error("Error updating favorite locations:", error);
             alert("Failed to update favorite locations.");
         }
+    };
+
+    //users
+    const handleToggleAvoidUser = (avoid_user_id) => {
+        if (avoidUsers.some(user => user.user_id === avoid_user_id)) {
+            setAvoidUsers(avoidUsers.filter(user => user.user_id !== avoid_user_id));
+        } else {
+            const user = users.find(user => user.user_id === avoid_user_id);
+            if (user) {
+                setAvoidUsers([...avoidUsers, user]);
+            }
+        }
+    };
+
+    const handleSubmitAvoidUsers = async () => {
+        const avoid_user_ids = avoidUsers.map(user => user.user_id);
+        try {
+            await axios.post("http://localhost:8080/createAvoidUsers", { user_id: ID, avoid_user_ids });
+            alert("Avoided users updated successfully!");
+        } catch (error) {
+            console.error("Error updating avoided users:", error);
+            alert("Failed to update avoided users.");
+        }
+    };
+
+    const handleSubmit = () => {
+    navigate(`/${role}`, { state: { ID } });
     };
 
     return (
@@ -83,7 +117,7 @@ export function User() {
                                 <input
                                     type="checkbox"
                                     checked={favoriteLocations.some(fav => fav.location_id === loc.location_id)}
-                                    onChange={() => handleToggle(loc.location_id)}
+                                    onChange={() => handleToggleLocation(loc.location_id)}
                                 />
                                 {loc.name}
                             </label>
@@ -107,10 +141,20 @@ export function User() {
             <div className="user-preferences">
                 <h2>Blocked users</h2>
                 <ul>
-                    <li>User 1</li>
-                    <li>User 2</li>
-                    <li>User 3</li>
+                    {users.map(user => (
+                        <li key={user.user_id}>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={avoidUsers.some(avoid => avoid.user_id === user.user_id)}
+                                    onChange={() => handleToggleAvoidUser(user.user_id)}
+                                />
+                                {user.user_id}
+                            </label>
+                        </li>
+                    ))}
                 </ul>
+                <button onClick={handleSubmitAvoidUsers}>Submit Avoided Users</button>
             </div>
 
             <button onClick={handleSubmit}>Go to {role} page</button>

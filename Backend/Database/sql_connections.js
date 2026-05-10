@@ -7,7 +7,9 @@ const {
         showRide,
         runAlgorithm,
         getLocations,
-        createFavoriteLocations
+        createFavoriteLocations,
+        getUsers,
+        createAvoidUsers
 
 } = require("./sql_functions.js");
 
@@ -81,6 +83,17 @@ app.post("/createFavoriteLocations", async (req, res) => {
     const { user_id, location_ids } = req.body;
     await createFavoriteLocations(user_id, location_ids);
     res.status(201).send({ success: true, message: "Favorite locations updated successfully" });    
+});
+
+app.get("/getUsers", async (req, res) => {
+    const users = await getUsers();
+    res.json(users);
+});
+
+app.post("/createAvoidUsers", async (req, res) => {
+    const { user_id, avoid_user_ids } = req.body;
+    await createAvoidUsers(user_id, avoid_user_ids);
+    res.status(201).send({ success: true, message: "Avoided users updated successfully" });
 });
 
 // -- LOCATION VALIDATION FUNCTION -- //
