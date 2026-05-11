@@ -65,6 +65,14 @@ export function Passenger() {
       return;
     }
 
+    //convert the location names to location ids
+    const startId = await axios.post("http://localhost:8080/getLocationId", {
+      name: start,
+    });
+    const endId = await axios.post("http://localhost:8080/getLocationId", {
+      name: end,
+    });
+
     try {
       await axios.post("http://localhost:8080/createPassenger", {
         passenger_id: ID,
@@ -72,9 +80,9 @@ export function Passenger() {
 
       await axios.post("http://localhost:8080/createRequest", {
         passenger_id: ID,
-        start_loc: start,
-        end_loc: end, 
-        ride_time: time, 
+        start_loc: startId.data.locationId,
+        end_loc: endId.data.locationId,
+        ride_time: time,
         needs: need === "yes" ? 1 : 0
       });
 

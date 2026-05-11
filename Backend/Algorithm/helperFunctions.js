@@ -310,6 +310,7 @@ module.exports = {
     cost,
     isValidLocation,
     isValidDistance,
+    getGeocode,
     preloadGeocodes,
     preloadDistances
 };

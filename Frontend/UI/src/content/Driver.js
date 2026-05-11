@@ -70,11 +70,20 @@ export function Driver() {
         driver_id: ID,
       });
 
+      //convert the location names to location ids
+      const startId = await axios.post("http://localhost:8080/getLocationId", {
+        name: start,
+      });
+      const endId = await axios.post("http://localhost:8080/getLocationId", {
+        name: end,
+      });
+
+
       await axios.post("http://localhost:8080/createRide", {
         driver_id: ID,
         seats: parseInt(seats),
-        start_loc: start,
-        end_loc: end,
+        start_loc: startId.data.locationId,
+        end_loc: endId.data.locationId,
         ride_time: time,
         needs: need === "yes" ? 1 : 0,
       });

@@ -38,3 +38,10 @@ Project/
     cd UI
     npm install                   # Only needed the first time
     npm start                     # Launches the UI on http://localhost:3000
+
+
+>>start OSRM server:
+cd ~/osrm
+osrm-routed --algorithm mld merged-europe.osrm
+
+http://localhost:5000

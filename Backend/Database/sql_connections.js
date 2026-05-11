@@ -11,11 +11,12 @@ const {
         getUsers,
         createAvoidUsers,
         getPassengerRides,
-        getDriverRides
+        getDriverRides,
+        getLocationId
 
 } = require("./sql_functions.js");
 
-const { isValidLocation, isValidDistance } = require('../Algorithm/helperFunctions.js');
+const { isValidLocation, isValidDistance, getGeocode } = require('../Algorithm/helperFunctions.js');
 
 
 const express = require('express');
@@ -63,6 +64,13 @@ app.post("/createRequest", async (req, res) => {
     res.status(201).send({ success: true, message: "Request created successfully" });
 });
 
+// -- PASSENGER + DRIVER PAGE-- //
+app.post("/getLocationId", async (req, res) => {
+    const { name } = req.body;
+    const locationId = await getLocationId(name);
+    res.send({ locationId });
+});
+
 // -- RIDES PAGE-- //
 app.post("/showRide", async (req, res) => {
     const { passenger_id } = req.body;
@@ -73,6 +81,12 @@ app.post("/showRide", async (req, res) => {
 app.post("/runAlgorithm", async (req, res) => {
     const result = await runAlgorithm();
     res.send(result);
+});
+
+app.post("/getGeocode", async (req, res) => {
+    const { location } = req.body;
+    const geocode = await getGeocode(location);
+    res.send({ geocode });
 });
 
 // -- USER PAGE --//

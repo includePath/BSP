@@ -181,12 +181,30 @@ module.exports.createRequest = async function(passenger_id, start_loc, end_loc, 
         `,[passenger_id, start_loc, end_loc, ride_time, needs])
 }
 
-//show the ride matched to the passenger (rides page)
+//get the id of location from the name (passenger and driver page)
+module.exports.getLocationId = async function(location_name) {
+    const [rows] = await pool.query(`
+        SELECT location_id FROM Locations WHERE name = ?
+    `, [location_name]);
+    return rows[0]?.location_id;
+}
+
+//get the name of location from the id (passenger and driver page)
+module.exports.getLocationName = async function(location_id) {
+    const [rows] = await pool.query(`
+        SELECT name FROM Locations WHERE location_id = ?
+    `, [location_id]);
+    return rows[0]?.name;
+}
+
+//show the ride matched to the passenger and convert location ids to names (rides page)
 module.exports.showRide = async function(passenger_id){
     const [rows] = await pool.query(`
-        SELECT Rides.*
+        SELECT Rides.*, start_loc.name as start_loc_name, end_loc.name as end_loc_name
         FROM PassengerRides
         JOIN Rides ON PassengerRides.ride_id = Rides.ride_id
+        JOIN Locations as start_loc ON Rides.start_loc = start_loc.location_id
+        JOIN Locations as end_loc ON Rides.end_loc = end_loc.location_id
         WHERE PassengerRides.passenger_id = ?
     `, [passenger_id]);
 
