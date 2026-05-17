@@ -124,9 +124,21 @@ export function Driver() {
     <div>
       <h1>Driver</h1>
       <form onSubmit={handleSubmit}>
+      {/* Admin button on left top corner */}
+      <div style={{ position: 'absolute', top: 10, left: 10 }}>
+        <button type="button" onClick={() => {
+          if (ID === "admin") {
+            navigate('/admin');
+          } else {
+            alert("You are not an admin. You cannot access this page.");
+          }
+        }}>
+          Admin Panel
+        </button>
+      </div>
       {/* User details button on right top corner */}
           <div style={{ position: 'absolute', top: 10, right: 10 }}>
-            <button onClick={() => navigate('/user', { state: { ID, role: "driver" } })}>
+            <button type="button" onClick={() => navigate('/user', { state: { ID, role: "driver" } })}>
               User Details
             </button>
       </div>

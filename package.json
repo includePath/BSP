@@ -1,0 +1,16 @@
+{
+  "name": "carpool-project",
+  "version": "1.0.0",
+  "description": "Full-stack carpool application",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\" \"npm run start:osrm\"",
+    "start:backend": "cd Backend/Database && node sql_connections.js",
+    "start:frontend": "cd Frontend/UI && npm start",
+    "start:osrm": "wsl bash -c \"cd ~/osrm && osrm-routed --algorithm mld merged-europe.osrm\"",
+    "install:all": "npm install && cd Backend && npm install && cd ../Frontend/UI && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

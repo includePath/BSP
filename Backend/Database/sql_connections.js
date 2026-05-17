@@ -16,6 +16,8 @@ const {
 
 } = require("./sql_functions.js");
 
+const { populateDatabase, clearDatabase } = require("./populate_database.js");
+
 const { isValidLocation, isValidDistance, getGeocode } = require('../Algorithm/helperFunctions.js');
 
 
@@ -136,6 +138,28 @@ app.post("/isValidDistance", async (req, res) => {
     const { loc1, loc2 } = req.body;
     const valid = await isValidDistance(loc1, loc2);
     res.send({ valid });
+});
+
+// -- ADMIN PAGE -- //
+app.post("/clearDatabase", async (req, res) => {
+    try {
+        await clearDatabase();
+        res.status(201).send({ success: true, message: "Database deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting database:", error);
+        res.status(500).send({ success: false, message: "Error deleting database", error: error.message });
+    }
+});
+
+app.post("/populateDatabase", async (req, res) => {
+    const { numUsers = 100, numLocations = 5 } = req.body;
+    try {
+        await populateDatabase(numUsers, numLocations);
+        res.status(201).send({ success: true, message: "Database populated successfully" });
+    } catch (error) {
+        console.error("Error populating database:", error);
+        res.status(500).send({ success: false, message: "Error populating database", error: error.message });
+    }
 });
 
 app.listen(8080, () => {

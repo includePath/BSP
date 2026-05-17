@@ -6,6 +6,7 @@ import {Driver} from './content/Driver'
 import {Passenger} from './content/Passenger'
 import {Rides} from './content/Rides'
 import { User } from './content/User';
+import { Admin } from './content/Admin';
 
 
 function App() {
@@ -16,7 +17,8 @@ function App() {
           <Route path="/driver" element={<Driver />} />
           <Route path="/passenger" element={<Passenger />} />  
           <Route path="/rides" element={<Rides />} /> 
-          <Route path="/user" element={<User />} />   
+          <Route path="/user" element={<User />} />
+          <Route path="/admin" element={<Admin />} />   
         </Routes>
       </Router>
     );

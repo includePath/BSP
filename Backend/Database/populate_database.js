@@ -57,17 +57,22 @@ function randomTime(){
     return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
 }
 
-// --POPULATE DATABASE-- //
+// --DELETE DATABASE-- //
 
-async function populateDatabase(numUsers = 100, numLocations = 5){
-
+async function clearDatabase(){
     //delete the database if it exists
     await deleteDatabase();
     //create the database
     await createDatabase();
+}
+
+// --POPULATE DATABASE-- //
+
+async function populateDatabase(numUsers = 100, numLocations = 5, closeConnection = false){
 
     //only take the first numLocations locations
-    const selectedLocations = locations.slice(0, numLocations);
+    const selectedLocations = [...new Set(locations)].slice(0, numLocations);
+
 
     //populate locations table
     for (const loc of selectedLocations) {
@@ -75,6 +80,9 @@ async function populateDatabase(numUsers = 100, numLocations = 5){
     }
     //also add University of Luxembourg as a location
     await createLocation("University of Luxembourg");
+
+    //create an admin 
+    await createUser("admin", "admin");
 
     //create a mock user for manual testing
     await createUser("test", "test");
@@ -133,17 +141,21 @@ async function populateDatabase(numUsers = 100, numLocations = 5){
         }
     }
     console.log("Database population complete");
+    
+    //close connections if requested
+    if (closeConnection) {
+        await setup.end();
+        await pool.end();
+    }
 }
 
 async function main(){
     const numUsers = parseInt(process.argv[2]) || 100;
-    await populateDatabase(numUsers);
-    await setup.end();
-    await pool.end();
+    await populateDatabase(numUsers, 5, true);  // true to close connections when run from CLI
 }
 
 if (require.main === module) {
     main();
 }
 
-module.exports = { populateDatabase };
+module.exports = { populateDatabase, clearDatabase };

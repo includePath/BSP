@@ -99,13 +99,36 @@ module.exports.createDatabase = async function() {
     console.log("Database created");
 }
 
-//delete the database
-module.exports.deleteDatabase = async function() {
-    await setup.query(`
-        DROP DATABASE IF EXISTS carpool;
-    `);
-    console.log("Database deleted");
-}
+//delete the database of all the data but keep the schemes
+module.exports.deleteDatabase = async function () {
+    try {
+        await setup.query("USE carpool");
+        //disable FK checks so TRUNCATE works in any order
+        await setup.query("SET FOREIGN_KEY_CHECKS = 0");
+        const tables = [
+            "PassengerRides",
+            "Rides",
+            "Requests",
+            "FavoriteLocations",
+            "AvoidUsers",
+            "Passengers",
+            "Drivers",
+            "Locations",
+            "Users"
+        ];
+        //clear each table
+        for (const table of tables) {
+            await setup.query(`TRUNCATE TABLE ${table}`);
+        }
+        //re-enable FK checks
+        await setup.query("SET FOREIGN_KEY_CHECKS = 1");
+        console.log("Database cleared");
+    } catch (err) {
+        console.error("Error clearing database:", err);
+        throw err;
+    }
+};
+
 
 // --POSTED FUNCTIONS (sql_connections.js)-- //
 
