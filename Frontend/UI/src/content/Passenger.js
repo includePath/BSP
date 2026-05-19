@@ -18,7 +18,9 @@ export function Passenger() {
 
   //initialize the value for each component
   const [start, setStart] = useState('University Of Luxembourg');
+  const [startCountry, setStartCountry] = useState('Luxembourg');
   const [end, setEnd] = useState('University Of Luxembourg');
+  const [endCountry, setEndCountry] = useState('Luxembourg');
   const [time, setTime] = useState('');
   const [need, setNeed] = useState('');
 
@@ -67,10 +69,10 @@ export function Passenger() {
 
     //convert the location names to location ids
     const startId = await axios.post("http://localhost:8080/getLocationId", {
-      name: start,
+      name: `${start}, ${startCountry}`,
     });
     const endId = await axios.post("http://localhost:8080/getLocationId", {
-      name: end,
+      name: `${end}, ${endCountry}`,
     });
 
     try {
@@ -144,6 +146,17 @@ export function Passenger() {
               value={start}
               onChange={(e) => setStart(e.target.value)}
           />
+          <label htmlFor="startCountry">Start Country: </label>
+          <select 
+              id="startCountry"
+              value={startCountry}
+              onChange={(e) => setStartCountry(e.target.value)}
+          >
+            <option value="Luxembourg">Luxembourg</option>
+            <option value="Belgium">Belgium</option>
+            <option value="France">France</option>
+            <option value="Germany">Germany</option>
+          </select>
           {/* end location */}
           <label htmlFor="end">End location: </label>
           <input 
@@ -151,6 +164,17 @@ export function Passenger() {
               value={end}
               onChange={(e) => setEnd(e.target.value)}
           />
+          <label htmlFor="endCountry">End Country: </label>
+          <select 
+              id="endCountry"
+              value={endCountry}
+              onChange={(e) => setEndCountry(e.target.value)}
+          >
+            <option value="Luxembourg">Luxembourg</option>
+            <option value="Belgium">Belgium</option>
+            <option value="France">France</option>
+            <option value="Germany">Germany</option>
+          </select>
           <br></br>
           {/* time */}
           <label htmlFor="time">Time: </label>

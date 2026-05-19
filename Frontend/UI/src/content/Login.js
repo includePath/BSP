@@ -18,6 +18,12 @@ export function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    //missing fields
+    if (!ID || !password || !status) {
+      alert("All fields are required.");
+      return;
+    }
+
     //authenticate the user
     const response = await axios.post("http://localhost:8080/checkUser", {
         user_id: ID,

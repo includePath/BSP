@@ -4,6 +4,18 @@ const { getFavoriteLocations, getAvoidUsers } = require("../Database/sql_functio
 
 // --HELPER FUNCTIONS-- //
 
+// --AXIOS INSTANCE-- //
+const http = require("http");
+const https = require("https");
+
+const axiosOSRM = axios.create({
+    baseURL: "http://localhost:5000",
+    timeout: 5000,
+    httpAgent: new http.Agent({ keepAlive: true }),
+    httpsAgent: new https.Agent({ keepAlive: true })
+});
+
+
 // --NORMALIZATION-- //
 function normalizeLocation(location) {
     return location.trim()
@@ -147,7 +159,7 @@ async function getDistance(coord1, coord2) {
     //use local OSRM instance for distance calculation
     const url = `http://localhost:5000/route/v1/driving/${coord1.lon},${coord1.lat};${coord2.lon},${coord2.lat}?overview=false`;
     try {
-        const response = await axios.get(url);
+        const response = await axiosOSRM.get(url);
         const data = response.data;
         if (!data.routes || data.routes.length === 0) {
             console.error("No route data found for coordinates:", coord1, coord2);

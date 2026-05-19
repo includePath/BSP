@@ -60,15 +60,16 @@ function randomTime(){
 // --DELETE DATABASE-- //
 
 async function clearDatabase(){
-    //delete the database if it exists
+    //clear the database
     await deleteDatabase();
-    //create the database
-    await createDatabase();
 }
 
 // --POPULATE DATABASE-- //
 
 async function populateDatabase(numUsers = 100, numLocations = 5, closeConnection = false){
+
+    //create the database
+    await createDatabase();
 
     //only take the first numLocations locations
     const selectedLocations = [...new Set(locations)].slice(0, numLocations);

@@ -165,7 +165,7 @@ module.exports.createDriver = async function(driver_id){
     //only create the driver if it doesn't exist
     if (check.length === 0) {
         await pool.query(`
-        INSERT INTO Drivers (driver_id)
+        INSERT IGNORE INTO Drivers (driver_id)
         VALUES(?)
         `, [driver_id])
     }
@@ -330,7 +330,7 @@ module.exports.getDriverRides = async function(driver_id) {
 //create an user (populate_database.js)
 module.exports.createUser = async function(user_id, pass) {
     await pool.query(`
-        INSERT INTO Users (user_id, pass)
+        INSERT IGNORE INTO Users (user_id, pass)
         VALUES(?,?)
         `, [user_id, pass]
     )

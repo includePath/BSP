@@ -53,59 +53,59 @@ export function Admin() {
   };
 
   return (
-    <div>
-      <h1>Admin Panel</h1>
-      
-      <div>
-        <h2>Database Management</h2>
+    <div className="admin-page">
+      <div className="admin-content">
+        <h1>Admin Panel</h1>
         
-        <div>
-          <label htmlFor="numUsers">Number of Users: </label>
-          <input 
-            type="number" 
-            id="numUsers" 
-            value={numUsers} 
-            onChange={(e) => setNumUsers(e.target.value)}
-            min="1"
-          />
+        <div className="admin-section">
+          <h2>Database Management</h2>
+          
+          <div>
+            <label htmlFor="numUsers">Number of Users: </label>
+            <input 
+              type="number" 
+              id="numUsers" 
+              value={numUsers} 
+              onChange={(e) => setNumUsers(e.target.value)}
+              min="1"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="numLocations">Number of Locations: </label>
+            <input 
+              type="number" 
+              id="numLocations" 
+              value={numLocations} 
+              onChange={(e) => setNumLocations(e.target.value)}
+              min="1"
+            />
+          </div>
+
+          <div className="admin-buttons">
+            <button 
+              onClick={handleDeleteDatabase} 
+              disabled={loading}
+              style={{ backgroundColor: '#ff6b6b', color: 'white', padding: '10px 15px' }}
+            >
+              {loading ? 'Clear...' : 'Clear Database'}
+            </button>
+
+            <button 
+              onClick={handlePopulateDatabase} 
+              disabled={loading}
+              style={{ backgroundColor: '#4CAF50', color: 'white', padding: '10px 15px' }}
+            >
+              {loading ? 'Populating...' : 'Populate Database'}
+            </button>
+          </div>
+
+          {message && <p><strong>{message}</strong></p>}
         </div>
 
         <div>
-          <label htmlFor="numLocations">Number of Locations: </label>
-          <input 
-            type="number" 
-            id="numLocations" 
-            value={numLocations} 
-            onChange={(e) => setNumLocations(e.target.value)}
-            min="1"
-          />
+          <button onClick={() => navigate('/')}>Back to Login</button>
         </div>
-
-        <br />
-
-        <button 
-          onClick={handleDeleteDatabase} 
-          disabled={loading}
-          style={{ backgroundColor: '#ff6b6b', color: 'white', marginRight: '10px' }}
-        >
-          {loading ? 'Clear...' : 'Clear Database'}
-        </button>
-
-        <button 
-          onClick={handlePopulateDatabase} 
-          disabled={loading}
-          style={{ backgroundColor: '#4CAF50', color: 'white' }}
-        >
-          {loading ? 'Populating...' : 'Populate Database'}
-        </button>
-
-        {message && <p><strong>{message}</strong></p>}
-      </div>
-
-      <br />
-
-      <div>
-        <button onClick={() => navigate('/')}>Back to Login</button>
       </div>
     </div>
   );
